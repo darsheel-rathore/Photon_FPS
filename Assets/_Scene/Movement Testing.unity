@@ -2413,7 +2413,7 @@ MonoBehaviour:
   viewPoint: {fileID: 599633813}
   mouseSensitivity: 2
   enableInvertedLook: 0
-  mouseCursorVisible: 1
+  mouseCursorVisible: 0
   moveSpeed: 5
   runSpeed: 8
   groundCheck: {fileID: 667697117}
@@ -2421,7 +2421,7 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 64
-  gravityModifier: 2
+  gravityModifier: 1.75
 --- !u!143 &2065890453
 CharacterController:
   m_ObjectHideFlags: 0

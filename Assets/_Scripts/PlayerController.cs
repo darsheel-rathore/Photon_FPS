@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -16,7 +14,9 @@ public class PlayerController : MonoBehaviour
     [Header("Player Movement")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] public float runSpeed = 8f;
+    private CharacterController characterController;
     private float jumpDistance = 3f;
+    private float activeMoveSpeed;
 
     [Header("Ground Check")]
     [SerializeField] public Transform groundCheck;
@@ -24,12 +24,8 @@ public class PlayerController : MonoBehaviour
     public bool isGrounded;
     public LayerMask groundMask;
     private Vector3 velocity;
-
-    private float activeMoveSpeed;
-    private CharacterController characterController;
-    
     private const float _GRAVITY = -9.81f;
-    [SerializeField][Range(0.1f, 5f)] private float gravityModifier = 2f;
+    [SerializeField] private float gravityModifier = 1.5f;
 
     private Vector3 movement;
     private Camera cam;
@@ -69,14 +65,15 @@ public class PlayerController : MonoBehaviour
 
         // Move the player with calculated velocity
         characterController.Move(velocity * Time.deltaTime);
-
-        //Debug.Log(isGrounded);  // Output if the player is grounded (for debugging)
     }
 
     private void LateUpdate()
     {
         // Update camera position and rotation to match viewPoint
         FollowCamera();
+
+        // Call the method to disable cursor lock
+        DisableCursorLock();
     }
 
     private void FollowCamera()
@@ -178,5 +175,14 @@ public class PlayerController : MonoBehaviour
     {
         // Apply constant gravity to the vertical velocity
         velocity.y += _GRAVITY * gravityModifier * Time.deltaTime;
+    }
+
+    private void DisableCursorLock()
+    {
+        if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
     }
 }
