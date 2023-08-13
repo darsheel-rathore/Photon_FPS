@@ -2298,4 +2298,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   viewPoint: {fileID: 599633813}
   mouseSensitivity: 2
-  isInverted: 0
+  enableInvertedLook: 0
+  mouseCursorVisible: 0

@@ -6,12 +6,23 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] public GameObject viewPoint;
     [SerializeField] public float mouseSensitivity = 2.0f;
-    [SerializeField] private bool isInverted = false;
+    [SerializeField] private bool enableInvertedLook = false;
+    [SerializeField] private bool mouseCursorVisible = true;
 
     private float verticalRotStore;
 
+
+    private void Start()
+    {
+        if (!mouseCursorVisible)
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;  
+        }
+    }
     private void Update()
     {
+        // Handle Player Rotation
         PlayerRotation();
     }
 
@@ -43,7 +54,7 @@ public class PlayerController : MonoBehaviour
         void PlayerChildViewPointXRotation(Vector2 mouseInput)
         {
             // Invert the Y-axis input if specified
-            float mouseY = (isInverted == true) ? mouseInput.y : mouseInput.y * -1;
+            float mouseY = (enableInvertedLook == true) ? mouseInput.y : mouseInput.y * -1;
 
             // Update the vertical rotation store based on the mouse input and sensitivity
             verticalRotStore += mouseY * mouseSensitivity;
