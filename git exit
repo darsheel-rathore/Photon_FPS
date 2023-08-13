@@ -1,0 +1,23 @@
+[33mcommit 38ea364dad7117b43fb4a3575e5f684bf5c28d56[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: Darsheel Rathore <darsheel.techdev@gmail.com>
+Date:   Sun Aug 13 18:16:50 2023 +0530
+
+    Controller.cs - Making the player move
+
+[33mcommit 5888a1e4ac2e1d78419954355390dfdf29519dda[m
+Author: Darsheel Rathore <darsheel.techdev@gmail.com>
+Date:   Sun Aug 13 17:46:55 2023 +0530
+
+    PlayerController.Cs - Created a option to turn on/off mouse cursor
+
+[33mcommit e8c6abc4dcc58253b9df487c152c0e83e97d72c2[m
+Author: Darsheel Rathore <darsheel.techdev@gmail.com>
+Date:   Sun Aug 13 16:25:29 2023 +0530
+
+    Handle Rotation of Player's Y Axis and Player's child gameobject ("Viewpoint") X Axis
+
+[33mcommit d3481ac41489672c87dc3bbf1b52441aa90ec505[m
+Author: Darsheel Rathore <darsheel.techdev@gmail.com>
+Date:   Sun Aug 13 14:55:13 2023 +0530
+
+    Project Setup

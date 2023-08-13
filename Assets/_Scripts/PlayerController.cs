@@ -14,25 +14,35 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool mouseCursorVisible = true;
 
     [Header("Player Movement")]
-    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] [Range(1, 20)] private float moveSpeed = 5f;
+    private CharacterController characterController;
+    private float gravity = -9.8f;
 
+    private Vector3 movement;
 
-    private void Start()
+    private void Awake()
     {
+        characterController = GetComponent<CharacterController>();
+
         if (!mouseCursorVisible)
         {
             Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;  
+            Cursor.lockState = CursorLockMode.Locked;
         }
     }
+
     private void Update()
     {
+        // Handles Player Movement
+        PlayerMovement();
+
         // Handle Player Rotation
         PlayerRotation();
 
+        // Handles Gravity
+        CheckPlayerOnGround();
 
-        // Handle Player Movement
-        PlayerMovement();
+        characterController.Move(movement);
     }
 
     private void PlayerRotation()
@@ -99,8 +109,15 @@ public class PlayerController : MonoBehaviour
         // Transform the input vector into the player's local space
         Vector3 localDirection = (transform.forward * inputDirection.z) + (transform.right * inputDirection.x);
 
-        // Move the player based on the local movement vector
-        transform.position += localDirection * moveSpeed * Time.deltaTime;
+        movement = localDirection * moveSpeed * Time.deltaTime;
+    }
+
+    private void CheckPlayerOnGround()
+    {
+        if(!characterController.isGrounded)
+        {
+            movement += transform.up * gravity * Time.deltaTime;
+        }
     }
 }
 
