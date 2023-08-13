@@ -10,25 +10,35 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool enableInvertedLook = false;
     private float verticalRotStore;
 
-    [Header("Mouse Visibility")] 
+    [Header("Mouse Visibility")]
     [SerializeField] private bool mouseCursorVisible = true;
 
     [Header("Player Movement")]
-    // Move Speed Run Speed
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] public float runSpeed = 8f;
+    private float jumpDistance = 3f;
+
+    [Header("Ground Check")]
+    [SerializeField] public Transform groundCheck;
+    private float groundRadius = 0.2f;
+    public bool isGrounded;
+    public LayerMask groundMask;
+    private Vector3 velocity;
+
     private float activeMoveSpeed;
-    // End Move Speed Run speed
     private CharacterController characterController;
-    private float gravity = -9.8f;
+    
+    private const float _GRAVITY = -9.81f;
+    [SerializeField][Range(0.1f, 5f)] private float gravityModifier = 2f;
 
     private Vector3 movement;
     private Camera cam;
 
     private void Awake()
     {
+        // Initialize references and set mouse cursor behavior
         characterController = GetComponent<CharacterController>();
-        cam = Camera.main;  
+        cam = Camera.main;
 
         if (!mouseCursorVisible)
         {
@@ -39,39 +49,54 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        // Handles Gravity
+        CheckPlayerOnGround();
+
         // Handles Player Movement
         PlayerMovement();
 
         // Handle Player Rotation
         PlayerRotation();
 
-        // Handles Gravity
-        CheckPlayerOnGround();
-
         // Move the game object
         characterController.Move(movement);
+
+        // Handles Jump
+        PlayerJump();
+
+        // Apply gravity
+        ApplyGravity();
+
+        // Move the player with calculated velocity
+        characterController.Move(velocity * Time.deltaTime);
+
+        //Debug.Log(isGrounded);  // Output if the player is grounded (for debugging)
     }
 
     private void LateUpdate()
     {
-        // Update cam position
+        // Update camera position and rotation to match viewPoint
         FollowCamera();
     }
 
     private void FollowCamera()
     {
+        // Move the camera to the position and rotation of the viewPoint
         cam.transform.position = viewPoint.transform.position;
         cam.transform.rotation = viewPoint.transform.rotation;
     }
 
     private void PlayerRotation()
     {
+        // Get mouse input for rotation
         var mouseInput = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
 
+        // Handle Y-axis rotation of the player
         PlayerYRotation(mouseInput);
+
+        // Handle X-axis rotation of the child viewPoint
         PlayerChildViewPointXRotation(mouseInput);
 
-        // Handles the rotation of the Y axis in parent game object
         void PlayerYRotation(Vector2 mouseInput)
         {
             // Get the change in mouse position since the last frame
@@ -85,10 +110,8 @@ public class PlayerController : MonoBehaviour
 
             // Apply the new rotation to the player's Transform component
             transform.rotation = newRotation;
-
         }
 
-        // Handles the rotation of the X axis in child game object
         void PlayerChildViewPointXRotation(Vector2 mouseInput)
         {
             // Invert the Y-axis input if specified
@@ -110,44 +133,50 @@ public class PlayerController : MonoBehaviour
 
     private void PlayerMovement()
     {
-        // Stops movement if player is airborne
-        if (!characterController.isGrounded)
-            return;
-
+        // Get player input for movement
         float horiztonalDelta = Input.GetAxisRaw("Horizontal");
         float verticalDelta = Input.GetAxisRaw("Vertical");
 
-        // Create a movement vector based on the input values
+        // Calculate input direction and normalize it
         Vector3 inputDirection = new Vector3(horiztonalDelta, 0f, verticalDelta);
         inputDirection.Normalize();
 
-        #region Another way to create local direction using player's rotation
-        //// Get the player's current rotation
-        //Quaternion playerRotation = transform.rotation;
-
-        //// Transform the input vector into the player's local space
-        //Vector3 localDirection = playerRotation * inputDirection;
-        #endregion
-
-        // Transform the input vector into the player's local space
+        // Transform local direction based on player's orientation
         Vector3 localDirection = (transform.forward * inputDirection.z) + (transform.right * inputDirection.x);
 
-        // Check if the LeftShift key is held down, if true, use the "runSpeed" for movement, otherwise use the regular "moveSpeed".
+        // Set active move speed based on whether the player is running
         if (Input.GetKey(KeyCode.LeftShift))
             activeMoveSpeed = runSpeed;
         else
             activeMoveSpeed = moveSpeed;
 
-        // Set the value to the movement vector
+        // Calculate movement based on local direction and speed
         movement = localDirection * activeMoveSpeed * Time.deltaTime;
+    }
+
+    private void PlayerJump()
+    {
+        if (Input.GetButtonDown("Jump") && isGrounded)
+        {
+            // https://discussions.unity.com/t/jumping-a-specific-height-using-velocity-gravity/125103
+            // Apply vertical impulse for jumping
+            velocity.y = Mathf.Sqrt(jumpDistance * -2 * _GRAVITY);
+        }
     }
 
     private void CheckPlayerOnGround()
     {
-        if(!characterController.isGrounded)
-        {
-            movement += transform.up * gravity * Time.deltaTime;
-        }
+        // Check if the player is grounded using a sphere check
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundRadius, groundMask);
+
+        // Apply a slight negative vertical velocity when grounded to ensure the player sticks to the ground
+        if (isGrounded && velocity.y < 0)
+            velocity.y = -2f;
+    }
+
+    private void ApplyGravity()
+    {
+        // Apply constant gravity to the vertical velocity
+        velocity.y += _GRAVITY * gravityModifier * Time.deltaTime;
     }
 }
-
