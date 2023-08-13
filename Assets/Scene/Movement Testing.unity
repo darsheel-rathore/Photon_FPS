@@ -2299,4 +2299,5 @@ MonoBehaviour:
   viewPoint: {fileID: 599633813}
   mouseSensitivity: 2
   enableInvertedLook: 0
-  mouseCursorVisible: 0
+  mouseCursorVisible: 1
+  moveSpeed: 5

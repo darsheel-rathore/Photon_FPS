@@ -4,12 +4,17 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Player Rotation")]
     [SerializeField] public GameObject viewPoint;
-    [SerializeField] public float mouseSensitivity = 2.0f;
+    [SerializeField] private float mouseSensitivity = 2.0f;
     [SerializeField] private bool enableInvertedLook = false;
+    private float verticalRotStore;
+
+    [Header("Mouse Visibility")] 
     [SerializeField] private bool mouseCursorVisible = true;
 
-    private float verticalRotStore;
+    [Header("Player Movement")]
+    [SerializeField] private float moveSpeed = 5f;
 
 
     private void Start()
@@ -24,6 +29,10 @@ public class PlayerController : MonoBehaviour
     {
         // Handle Player Rotation
         PlayerRotation();
+
+
+        // Handle Player Movement
+        PlayerMovement();
     }
 
     private void PlayerRotation()
@@ -68,6 +77,30 @@ public class PlayerController : MonoBehaviour
             // Apply the new rotation to the viewPoint's rotation
             viewPoint.transform.rotation = newRotation;
         }
+    }
+
+    private void PlayerMovement()
+    {
+        float horiztonalDelta = Input.GetAxisRaw("Horizontal");
+        float verticalDelta = Input.GetAxisRaw("Vertical");
+
+        // Create a movement vector based on the input values
+        Vector3 inputDirection = new Vector3(horiztonalDelta, 0f, verticalDelta);
+        inputDirection.Normalize();
+
+        #region Another way to create local direction using player's rotation
+        //// Get the player's current rotation
+        //Quaternion playerRotation = transform.rotation;
+
+        //// Transform the input vector into the player's local space
+        //Vector3 localDirection = playerRotation * inputDirection;
+        #endregion
+
+        // Transform the input vector into the player's local space
+        Vector3 localDirection = (transform.forward * inputDirection.z) + (transform.right * inputDirection.x);
+
+        // Move the player based on the local movement vector
+        transform.position += localDirection * moveSpeed * Time.deltaTime;
     }
 }
 
