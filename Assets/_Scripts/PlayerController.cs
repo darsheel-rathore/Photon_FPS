@@ -14,7 +14,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool mouseCursorVisible = true;
 
     [Header("Player Movement")]
-    [SerializeField] [Range(1, 20)] private float moveSpeed = 5f;
+    // Move Speed Run Speed
+    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] public float runSpeed = 8f;
+    private float activeMoveSpeed;
+    // End Move Speed Run speed
     private CharacterController characterController;
     private float gravity = -9.8f;
 
@@ -42,6 +46,7 @@ public class PlayerController : MonoBehaviour
         // Handles Gravity
         CheckPlayerOnGround();
 
+        // Move the game object
         characterController.Move(movement);
     }
 
@@ -91,6 +96,10 @@ public class PlayerController : MonoBehaviour
 
     private void PlayerMovement()
     {
+        // Stops movement if player is airborne
+        if (!characterController.isGrounded)
+            return;
+
         float horiztonalDelta = Input.GetAxisRaw("Horizontal");
         float verticalDelta = Input.GetAxisRaw("Vertical");
 
@@ -109,7 +118,14 @@ public class PlayerController : MonoBehaviour
         // Transform the input vector into the player's local space
         Vector3 localDirection = (transform.forward * inputDirection.z) + (transform.right * inputDirection.x);
 
-        movement = localDirection * moveSpeed * Time.deltaTime;
+        // Check if the LeftShift key is held down, if true, use the "runSpeed" for movement, otherwise use the regular "moveSpeed".
+        if (Input.GetKey(KeyCode.LeftShift))
+            activeMoveSpeed = runSpeed;
+        else
+            activeMoveSpeed = moveSpeed;
+
+        // Set the value to the movement vector
+        movement = localDirection * activeMoveSpeed * Time.deltaTime;
     }
 
     private void CheckPlayerOnGround()
