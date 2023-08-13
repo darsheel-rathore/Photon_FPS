@@ -23,10 +23,12 @@ public class PlayerController : MonoBehaviour
     private float gravity = -9.8f;
 
     private Vector3 movement;
+    private Camera cam;
 
     private void Awake()
     {
         characterController = GetComponent<CharacterController>();
+        cam = Camera.main;  
 
         if (!mouseCursorVisible)
         {
@@ -48,6 +50,18 @@ public class PlayerController : MonoBehaviour
 
         // Move the game object
         characterController.Move(movement);
+    }
+
+    private void LateUpdate()
+    {
+        // Update cam position
+        FollowCamera();
+    }
+
+    private void FollowCamera()
+    {
+        cam.transform.position = viewPoint.transform.position;
+        cam.transform.rotation = viewPoint.transform.rotation;
     }
 
     private void PlayerRotation()
