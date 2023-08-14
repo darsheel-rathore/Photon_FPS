@@ -179,7 +179,7 @@ public class PlayerController : MonoBehaviour
 
     private void DisableCursorLock()
     {
-        if(Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
