@@ -44,6 +44,8 @@ public class PlayerShooting : MonoBehaviour
         {
             // Cool down the weapon faster when overheated
             heatCounter -= overHeatCoolRate * Time.deltaTime;
+
+            UIController.instance.ToggleOverHeatMsg(true);
         }
 
         // Ensure the heat counter doesn't go below 0
@@ -51,7 +53,11 @@ public class PlayerShooting : MonoBehaviour
         {
             heatCounter = 0;
             isOverHeated = false;
+            UIController.instance.ToggleOverHeatMsg(false);
         }
+
+        // Update the overheat slider
+        UIController.instance.OverHeatSliderUpdate(heatCounter);
     }
 
     // Method for firing the weapon
@@ -66,9 +72,6 @@ public class PlayerShooting : MonoBehaviour
         // Check if the ray hits something
         if (isHit)
         {
-            // Log the name of the collider hit
-            Debug.Log(hitInfo.collider.name);
-
             // Instantiate the bullet impact effect at the hit point with a slight offset
             GameObject bulletImpact = Instantiate(this.bulletImpact, hitInfo.point + (hitInfo.normal * 0.002f), Quaternion.LookRotation(hitInfo.normal, Vector3.up));
 
