@@ -27,30 +27,28 @@ public class PlayerShooting : MonoBehaviour
     private void Start()
     {
         selectedGun = 0;
-
-        SwitchWeapon(selectedGun);
+        SwitchWeapon(selectedGun);  // Initialize the selected weapon
     }
 
     void Update()
     {
-        CheckMuzzleFlash();
-
-        UpdateWeaponHeat();
-
-        SwitchWeaponWithScrollAndNumKeys();
+        CheckMuzzleFlash();  // Check if muzzle flash should be deactivated
+        UpdateWeaponHeat();  // Manage weapon heat and shooting
+        SwitchWeaponWithScrollAndNumKeys();  // Handle weapon switching
     }
 
+    // Check if muzzle flash should be deactivated
     private void CheckMuzzleFlash()
     {
         if (guns[selectedGun].muzzleFlash.activeInHierarchy)
         {
             muzzleCounter -= Time.deltaTime;
-
             if (muzzleCounter < 0)
                 guns[selectedGun].muzzleFlash.SetActive(false);
         }
     }
 
+    // Handle weapon switching using scroll wheel and number keys
     private void SwitchWeaponWithScrollAndNumKeys()
     {
         if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
@@ -58,7 +56,6 @@ public class PlayerShooting : MonoBehaviour
             selectedGun--;
             if (selectedGun < 0)
                 selectedGun = guns.Length - 1;
-
             SwitchWeapon(selectedGun);
         }
         else if (Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
@@ -66,89 +63,63 @@ public class PlayerShooting : MonoBehaviour
             selectedGun++;
             if (selectedGun >= guns.Length)
                 selectedGun = 0;
-
             SwitchWeapon(selectedGun);
         }
-
-        //if (Input.GetKeyDown(KeyCode.Alpha1))
-        //    SwitchWeapon(0);
-        //if (Input.GetKeyDown(KeyCode.Alpha2))
-        //    SwitchWeapon(1);
-        //if (Input.GetKeyDown(KeyCode.Alpha3))
-        //    SwitchWeapon(2);
     }
 
+    // Update weapon heat and manage shooting
     private void UpdateWeaponHeat()
     {
-
-        // Check if the weapon is not overheated
         if (!isOverHeated)
         {
-            // Check for primary fire input (Mouse0) to initiate shooting
             if (Input.GetKeyDown(KeyCode.Mouse0))
             {
-                Fire();                
+                Fire();  // Fire the weapon on Mouse0 click
             }
-
-            // Check if the primary fire button (Fire1) is held down
             if (Input.GetButton("Fire1") && guns[selectedGun].isAutomatic)
             {
-                // Decrement the shot counter based on the time
                 shotCounter -= Time.deltaTime;
-
-                // Fire if the shot counter is below 0
                 if (shotCounter < 0)
                     Fire();
             }
-
-            // Cool down the weapon based on the cool rate
-            heatCounter -= coolRate * Time.deltaTime;
+            heatCounter -= coolRate * Time.deltaTime;  // Cool down the weapon
         }
-        else  // If the weapon is overheated
+        else
         {
-            // Cool down the weapon faster when overheated
             heatCounter -= overHeatCoolRate * Time.deltaTime;
-
-            UIController.instance.ToggleOverHeatMsg(true);
+            UIController.instance.ToggleOverHeatMsg(true);  // Display overheated message
         }
 
-        // Ensure the heat counter doesn't go below 0
+        // Ensure heat counter stays within limits
         if (heatCounter < 0)
         {
             heatCounter = 0;
             isOverHeated = false;
-            UIController.instance.ToggleOverHeatMsg(false);
+            UIController.instance.ToggleOverHeatMsg(false);  // Hide overheated message
         }
 
-        // Update the overheat slider
+        // Update UI slider for overheating
         UIController.instance.OverHeatSliderUpdate(heatCounter);
     }
 
+    // Handle firing the weapon
     private void Fire()
     {
         // Create a ray from the center of the screen
         Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
-
-        // Perform a raycast and check if it hits something
         bool isHit = Physics.Raycast(ray: ray, out RaycastHit hitInfo);
 
-        // Check if the ray hits something
         if (isHit)
         {
-            // Instantiate the bullet impact effect at the hit point with a slight offset
+            // Instantiate bullet impact effect at the hit point
             GameObject bulletImpact = Instantiate(this.bulletImpact, hitInfo.point + (hitInfo.normal * 0.002f), Quaternion.LookRotation(hitInfo.normal, Vector3.up));
-
-            // Destroy the bullet impact effect after a delay
-            Destroy(bulletImpact, 3f);
+            Destroy(bulletImpact, 3f);  // Destroy bullet impact effect after a delay
         }
 
-        // Reset the shot counter to control time between shots
-        shotCounter = timeBetweenShots;
+        shotCounter = timeBetweenShots;  // Reset shot counter for time between shots
+        heatCounter += heatPerShot;  // Increase weapon heat
 
-        // Increase weapon heat
-        heatCounter += heatPerShot;
-
-        // Check if the weapon is overheated
+        // Check if weapon is overheated
         if (heatCounter >= maxHeat)
         {
             heatCounter = maxHeat;
@@ -160,20 +131,19 @@ public class PlayerShooting : MonoBehaviour
         muzzleCounter = muzzleDisplayTime;
     }
 
+    // Switch to the specified weapon index
     private void SwitchWeapon(int index)
     {
         foreach (var gun in guns)
         {
-            gun.gameObject.SetActive(false);
-            gun.muzzleFlash.SetActive(false);
+            gun.gameObject.SetActive(false);  // Deactivate all guns
+            gun.muzzleFlash.SetActive(false);  // Deactivate muzzle flash
         }
 
-        guns[index].gameObject.SetActive(true);
+        guns[index].gameObject.SetActive(true);  // Activate the selected gun
 
-        // Change the values
+        // Update timing and heat values based on selected weapon
         timeBetweenShots = guns[index].GetComponent<Gun>().timeBetweenShots;
         heatPerShot = guns[index].GetComponent<Gun>().heatPerShot;
-
-
     }
 }
