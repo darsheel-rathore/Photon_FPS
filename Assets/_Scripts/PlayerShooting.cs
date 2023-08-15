@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerShooting : MonoBehaviour
@@ -15,19 +16,82 @@ public class PlayerShooting : MonoBehaviour
     public float heatCounter;
     private bool isOverHeated;
 
+    public Gun[] guns;
+    private int selectedGun;
+
+    private bool isMuzzleFlashIsActive;
+    // Muzzle
+    public float muzzleDisplayTime;
+    private float muzzleCounter;
+
+    private void Start()
+    {
+        selectedGun = 0;
+
+        SwitchWeapon(selectedGun);
+    }
+
     void Update()
     {
+        CheckMuzzleFlash();
+
+        UpdateWeaponHeat();
+
+        SwitchWeaponWithScrollAndNumKeys();
+    }
+
+    private void CheckMuzzleFlash()
+    {
+        if (guns[selectedGun].muzzleFlash.activeInHierarchy)
+        {
+            muzzleCounter -= Time.deltaTime;
+
+            if (muzzleCounter < 0)
+                guns[selectedGun].muzzleFlash.SetActive(false);
+        }
+    }
+
+    private void SwitchWeaponWithScrollAndNumKeys()
+    {
+        if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
+        {
+            selectedGun--;
+            if (selectedGun < 0)
+                selectedGun = guns.Length - 1;
+
+            SwitchWeapon(selectedGun);
+        }
+        else if (Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
+        {
+            selectedGun++;
+            if (selectedGun >= guns.Length)
+                selectedGun = 0;
+
+            SwitchWeapon(selectedGun);
+        }
+
+        //if (Input.GetKeyDown(KeyCode.Alpha1))
+        //    SwitchWeapon(0);
+        //if (Input.GetKeyDown(KeyCode.Alpha2))
+        //    SwitchWeapon(1);
+        //if (Input.GetKeyDown(KeyCode.Alpha3))
+        //    SwitchWeapon(2);
+    }
+
+    private void UpdateWeaponHeat()
+    {
+
         // Check if the weapon is not overheated
         if (!isOverHeated)
         {
             // Check for primary fire input (Mouse0) to initiate shooting
             if (Input.GetKeyDown(KeyCode.Mouse0))
             {
-                Fire();
+                Fire();                
             }
 
             // Check if the primary fire button (Fire1) is held down
-            if (Input.GetButton("Fire1"))
+            if (Input.GetButton("Fire1") && guns[selectedGun].isAutomatic)
             {
                 // Decrement the shot counter based on the time
                 shotCounter -= Time.deltaTime;
@@ -60,7 +124,6 @@ public class PlayerShooting : MonoBehaviour
         UIController.instance.OverHeatSliderUpdate(heatCounter);
     }
 
-    // Method for firing the weapon
     private void Fire()
     {
         // Create a ray from the center of the screen
@@ -91,5 +154,26 @@ public class PlayerShooting : MonoBehaviour
             heatCounter = maxHeat;
             isOverHeated = true;
         }
+
+        // Display muzzle flash
+        guns[selectedGun].muzzleFlash.SetActive(true);
+        muzzleCounter = muzzleDisplayTime;
+    }
+
+    private void SwitchWeapon(int index)
+    {
+        foreach (var gun in guns)
+        {
+            gun.gameObject.SetActive(false);
+            gun.muzzleFlash.SetActive(false);
+        }
+
+        guns[index].gameObject.SetActive(true);
+
+        // Change the values
+        timeBetweenShots = guns[index].GetComponent<Gun>().timeBetweenShots;
+        heatPerShot = guns[index].GetComponent<Gun>().heatPerShot;
+
+
     }
 }
