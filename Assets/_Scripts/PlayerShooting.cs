@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public class PlayerShooting : MonoBehaviour
@@ -63,6 +62,22 @@ public class PlayerShooting : MonoBehaviour
             selectedGun++;
             if (selectedGun >= guns.Length)
                 selectedGun = 0;
+            SwitchWeapon(selectedGun);
+        }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            selectedGun = 0;
+            SwitchWeapon(selectedGun);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            selectedGun = 1;
+            SwitchWeapon(selectedGun);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            selectedGun = 2;
             SwitchWeapon(selectedGun);
         }
     }
