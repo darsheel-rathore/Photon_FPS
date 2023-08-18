@@ -139,7 +139,7 @@ public class PlayerShooting : MonoBehaviourPunCallbacks
                     Quaternion.identity);
                 Destroy(playerBloodImpact, 3f);
 
-                hitInfo.collider.gameObject.GetPhotonView().RPC("DealDamage", RpcTarget.All, photonView.Owner.NickName);
+                hitInfo.collider.gameObject.GetPhotonView().RPC("DealDamage", RpcTarget.All, photonView.Owner.NickName, guns[selectedGun].shotDamage);
             }
             else
             { 

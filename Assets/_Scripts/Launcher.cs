@@ -60,7 +60,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     private void Update()
     {
-        Debug.Log("----" + PhotonNetwork.CountOfRooms);
+        
     }
     #endregion
 

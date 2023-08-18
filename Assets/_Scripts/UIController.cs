@@ -9,6 +9,8 @@ public class UIController : MonoBehaviour
     public Slider weaponTempSlider;
     public TMP_Text overHeatedMessage;
 
+    public Slider healthSlider;
+
     private void Awake()
     {
         instance = this;
@@ -23,5 +25,10 @@ public class UIController : MonoBehaviour
     {
         weaponTempSlider.value = value;
 
+    }
+
+    public void UpdateHealthSlider(float value)
+    {
+        healthSlider.value = value;
     }
 }
