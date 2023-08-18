@@ -1,15 +1,27 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviourPunCallbacks
 {
-    void Start()
+    public static PlayerController instance;
+
+    private void Awake()
     {
-        SpawnPlayerAtRandomSpawnPoints();
+        instance = this;
     }
 
-    private void SpawnPlayerAtRandomSpawnPoints()
+    [PunRPC]
+    public void DealDamage(string damager)
     {
-        var offset = transform.up * 2f;
-        transform.position = offset + SpawnManager.instance.GetRandomSpawnPointPosition.position;
+        TakeDamage(damager);
+    }
+
+    private void TakeDamage(string damager)
+    {
+        Debug.Log($"{photonView.Owner.NickName} is hit by {damager}");
+
+        gameObject.SetActive(false);
     }
 }

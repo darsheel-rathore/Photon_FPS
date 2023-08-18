@@ -1,6 +1,7 @@
 using UnityEngine;
+using Photon.Pun;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviourPunCallbacks
 {
     [Header("Player Rotation")]
     [SerializeField] public GameObject viewPoint;
@@ -45,6 +46,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        // Check is the player is controlling locally
+        if (!photonView.IsMine)
+            return;
+
         // Handles Gravity
         CheckPlayerOnGround();
 
@@ -69,6 +74,9 @@ public class PlayerMovement : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (!photonView.IsMine)
+            return;
+
         // Update camera position and rotation to match viewPoint
         FollowCamera();
 

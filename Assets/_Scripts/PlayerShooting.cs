@@ -1,8 +1,10 @@
 using UnityEngine;
+using Photon.Pun;
 
-public class PlayerShooting : MonoBehaviour
+public class PlayerShooting : MonoBehaviourPunCallbacks
 {
     [SerializeField] GameObject bulletImpact;
+    [SerializeField] GameObject playerHitImpact;
 
     public float timeBetweenShots = 0.1f;
     private float shotCounter;
@@ -31,6 +33,9 @@ public class PlayerShooting : MonoBehaviour
 
     void Update()
     {
+        if (!photonView.IsMine)
+            return;
+
         CheckMuzzleFlash();  // Check if muzzle flash should be deactivated
         UpdateWeaponHeat();  // Manage weapon heat and shooting
         SwitchWeaponWithScrollAndNumKeys();  // Handle weapon switching
@@ -126,9 +131,26 @@ public class PlayerShooting : MonoBehaviour
 
         if (isHit)
         {
-            // Instantiate bullet impact effect at the hit point
-            GameObject bulletImpact = Instantiate(this.bulletImpact, hitInfo.point + (hitInfo.normal * 0.002f), Quaternion.LookRotation(hitInfo.normal, Vector3.up));
-            Destroy(bulletImpact, 3f);  // Destroy bullet impact effect after a delay
+            if (hitInfo.collider.gameObject.tag == "Player")
+            {
+                GameObject playerBloodImpact = PhotonNetwork.Instantiate(
+                    playerHitImpact.name,
+                    hitInfo.point,
+                    Quaternion.identity);
+                Destroy(playerBloodImpact, 3f);
+
+                hitInfo.collider.gameObject.GetPhotonView().RPC("DealDamage", RpcTarget.All, photonView.Owner.NickName);
+            }
+            else
+            { 
+                // Instantiate bullet impact effect at the hit point
+                GameObject bulletImpact = Instantiate(
+                    this.bulletImpact, 
+                    hitInfo.point + (hitInfo.normal * 0.002f), 
+                    Quaternion.LookRotation(hitInfo.normal, 
+                    Vector3.up));
+                Destroy(bulletImpact, 3f);  // Destroy bullet impact effect after a delay
+            }
         }
 
         shotCounter = timeBetweenShots;  // Reset shot counter for time between shots
