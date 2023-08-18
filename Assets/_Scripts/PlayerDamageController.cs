@@ -17,8 +17,11 @@ public class PlayerDamageController : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        currentHealth = maxHealth;
-        UIController.instance.UpdateHealthSlider(currentHealth);
+        if (photonView.IsMine)
+        {
+            currentHealth = maxHealth;
+            UIController.instance.UpdateHealthSlider(currentHealth);
+        }
     }
 
     [PunRPC]

@@ -2091,7 +2091,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d661959625bc7a84b90ee8afea01574e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPrefab: {fileID: 4959651379106248587, guid: c1fa8718531add14382eeaa8ee7e9080, type: 3}
+  playerPrefab: {fileID: 7839170261387785153, guid: c1fa8718531add14382eeaa8ee7e9080, type: 3}
   deathVFX: {fileID: 2774380267669523637, guid: 3a15205ea7320884994e887a844e18d4, type: 3}
   playerDeadPanel: {fileID: 1297437512}
   playerDeadText: {fileID: 2059883487}

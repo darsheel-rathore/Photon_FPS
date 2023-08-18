@@ -31,6 +31,10 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
     private Vector3 movement;
     private Camera cam;
 
+    public Animator animator;
+
+    public GameObject playerModel;
+
     private void Awake()
     {
         // Initialize references and set mouse cursor behavior
@@ -44,6 +48,13 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
         }
     }
 
+    private void Start()
+    {
+        if(photonView.IsMine)
+        {
+            playerModel.SetActive(false);
+        }
+    }
     private void Update()
     {
         // Check is the player is controlling locally
@@ -157,6 +168,9 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
 
         // Calculate movement based on local direction and speed
         movement = localDirection * activeMoveSpeed * Time.deltaTime;
+
+        // Animation
+        animator.SetFloat("Speed", movement.magnitude);
     }
 
     private void PlayerJump()
@@ -166,6 +180,10 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
             // https://discussions.unity.com/t/jumping-a-specific-height-using-velocity-gravity/125103
             // Apply vertical impulse for jumping
             velocity.y = Mathf.Sqrt(jumpDistance * -2 * _GRAVITY);
+
+            // animation
+            animator.SetTrigger("Jump");
+            //animator.SetBool("Jump", (velocity.y > 0.2));
         }
     }
 

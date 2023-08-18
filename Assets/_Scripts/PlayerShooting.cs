@@ -25,10 +25,26 @@ public class PlayerShooting : MonoBehaviourPunCallbacks
     public float muzzleDisplayTime;
     private float muzzleCounter;
 
+    // Gun Holder
+    public Transform modelGunPoint;
+    public Transform gunHolder;
+
     private void Start()
     {
         selectedGun = 0;
-        SwitchWeapon(selectedGun);  // Initialize the selected weapon
+        //SwitchWeapon(selectedGun);  // Initialize the selected weapon
+        photonView.RPC("SwitchWeaponAcrossNetwork", RpcTarget.All, selectedGun);
+
+        if (photonView.IsMine)
+        {
+
+        }
+        else
+        {
+            gunHolder.parent = modelGunPoint;
+            gunHolder.localPosition = Vector3.zero;
+            gunHolder.localRotation = Quaternion.identity;
+        }
     }
 
     void Update()
@@ -60,14 +76,18 @@ public class PlayerShooting : MonoBehaviourPunCallbacks
             selectedGun--;
             if (selectedGun < 0)
                 selectedGun = guns.Length - 1;
-            SwitchWeapon(selectedGun);
+            //SwitchWeapon(selectedGun);
+            photonView.RPC("SwitchWeaponAcrossNetwork", RpcTarget.All, selectedGun);
         }
         else if (Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
         {
             selectedGun++;
             if (selectedGun >= guns.Length)
                 selectedGun = 0;
-            SwitchWeapon(selectedGun);
+            //SwitchWeapon(selectedGun);+
+            //SwitchWeaponAcrossNetwork(selectedGun);
+            photonView.RPC("SwitchWeaponAcrossNetwork", RpcTarget.All, selectedGun);
+
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -182,5 +202,15 @@ public class PlayerShooting : MonoBehaviourPunCallbacks
         // Update timing and heat values based on selected weapon
         timeBetweenShots = guns[index].GetComponent<Gun>().timeBetweenShots;
         heatPerShot = guns[index].GetComponent<Gun>().heatPerShot;
+    }
+
+    [PunRPC]
+    public void SwitchWeaponAcrossNetwork(int index)
+    {
+        if(index < guns.Length)
+        {
+            selectedGun = index;
+            SwitchWeapon(selectedGun);
+        }
     }
 }
