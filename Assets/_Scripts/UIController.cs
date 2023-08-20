@@ -15,6 +15,9 @@ public class UIController : MonoBehaviourPunCallbacks
     public TMP_Text killsText;
     public TMP_Text deathsText;
 
+    public GameObject leaderBoard;
+    public LeaderboardPlayer leaderBoardPlayer;
+
     private void Awake()
     {
         instance = this;

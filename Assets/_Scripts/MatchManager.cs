@@ -3,6 +3,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using UnityEngine;
 
 [System.Serializable]
 public class PlayerInfo
@@ -25,6 +26,8 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
 {
     public static MatchManager Instance;
     public List<PlayerInfo> allPlayerList = new List<PlayerInfo>();
+    private List<LeaderboardPlayer> leaderboardPlayers = new List<LeaderboardPlayer>();
+
     private int index;
     public enum EventCode : byte
     {
@@ -32,7 +35,6 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         LIST_PLAYER,
         CHANGE_STATE
     }
-
     public EventCode eventCode;
 
     #region UNITY_BUILTIN
@@ -50,6 +52,21 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
         else
         {
             NewPlayerSend(PhotonNetwork.NickName);
+        }
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            if (UIController.instance.leaderBoard.activeInHierarchy)
+            {
+                UIController.instance.leaderBoard.SetActive(false);
+            }
+            else
+            {
+                ShowLeaderBoard();
+            }
         }
     }
 
@@ -85,7 +102,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             }
         }
     }
-    
+
     // Method is being called from the start, when this game object came into existance
     public void NewPlayerSend(string username)
     {
@@ -114,10 +131,10 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
                                             deaths: (int)data[3]
                                         );
         allPlayerList.Add(newPlayerInfo);
-        
+
         ListPlayersSend();
     }
-    public void ListPlayersSend() 
+    public void ListPlayersSend()
     {
         object[] package = new object[allPlayerList.Count];
 
@@ -138,16 +155,16 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             (byte)EventCode.LIST_PLAYER,
             package,
             new RaiseEventOptions() { Receivers = ReceiverGroup.All },
-            new SendOptions() { Reliability = true}
+            new SendOptions() { Reliability = true }
             );
     }
-    public void ListPlayersReceive(object[] data) 
+    public void ListPlayersReceive(object[] data)
     {
         allPlayerList.Clear();
 
-        for(int i = 0; i < data.Length; i++)
+        for (int i = 0; i < data.Length; i++)
         {
-            object[] piece = (object[]) data[i];
+            object[] piece = (object[])data[i];
 
             PlayerInfo player = new PlayerInfo(
                 name: (string)piece[0],
@@ -164,7 +181,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             }
         }
     }
-    public void UpdateStatsSend(int actorNumber, int statToUpdate, int amountToChange) 
+    public void UpdateStatsSend(int actorNumber, int statToUpdate, int amountToChange)
     {
         object[] package = new object[] { actorNumber, statToUpdate, amountToChange };
 
@@ -175,13 +192,13 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             new SendOptions() { Reliability = true }
             );
     }
-    public void UpdateStatsReceive(object[] data) 
+    public void UpdateStatsReceive(object[] data)
     {
         int actor = (int)data[0];
         int statType = (int)data[1];
         int amount = (int)data[2];
 
-        for(int i = 0; i < allPlayerList.Count; i++)
+        for (int i = 0; i < allPlayerList.Count; i++)
         {
             if (allPlayerList[i].actor == actor)
             {
@@ -192,7 +209,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
                 else if (statType == 1)
                     allPlayerList[i].deaths += amount;
 
-                if(i == index)
+                if (i == index)
                 {
                     UpdateStatsDisplay();
                 }
@@ -200,7 +217,6 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             }
         }
     }
-
     public void UpdateStatsDisplay()
     {
         if (allPlayerList.Count > index)
@@ -213,5 +229,47 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
             UIController.instance.killsText.text = "Kills : 0";
             UIController.instance.deathsText.text = "Deaths : 0";
         }
+    }
+    private void ShowLeaderBoard()
+    {
+        UIController.instance.leaderBoard.SetActive(true);
+
+        foreach (var lp in leaderboardPlayers)
+        {
+            Destroy(lp.gameObject);
+        }
+
+        leaderboardPlayers.Clear();
+
+        UIController.instance.leaderBoardPlayer.gameObject.SetActive(false);
+
+        var sortedList = SortListBasedOnKillsDESC();
+
+        foreach (var player in sortedList)
+        {
+            LeaderboardPlayer newPlayerDisplay = Instantiate(UIController.instance.leaderBoardPlayer, UIController.instance.leaderBoardPlayer.transform.parent);
+
+            newPlayerDisplay.SetDetails(player.name, player.kills, player.deaths);
+            
+            var nickname = player.name;
+
+            if (PhotonNetwork.NickName == nickname)
+            {
+                newPlayerDisplay.ChangeColorForLocalPlayer();
+            }
+
+            newPlayerDisplay.gameObject.SetActive(true);
+
+            leaderboardPlayers.Add(newPlayerDisplay);
+        }
+    }
+
+    private List<PlayerInfo> SortListBasedOnKillsDESC()
+    {
+        List<PlayerInfo> sortedList = new List<PlayerInfo>(allPlayerList);
+
+        // Sort this list in desc order based on kills
+        sortedList.Sort((player1, player2) => player2.kills.CompareTo(player1.kills));
+        return sortedList;
     }
 }
