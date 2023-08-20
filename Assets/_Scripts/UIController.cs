@@ -1,8 +1,9 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Photon.Pun;
 
-public class UIController : MonoBehaviour
+public class UIController : MonoBehaviourPunCallbacks
 {
     public static UIController instance;
 
@@ -10,6 +11,9 @@ public class UIController : MonoBehaviour
     public TMP_Text overHeatedMessage;
 
     public Slider healthSlider;
+
+    public TMP_Text killsText;
+    public TMP_Text deathsText;
 
     private void Awake()
     {

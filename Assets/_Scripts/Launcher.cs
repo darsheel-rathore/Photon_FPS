@@ -1,10 +1,9 @@
 using Photon.Pun;
-using System.Collections.Generic;
 using Photon.Realtime;
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class Launcher : MonoBehaviourPunCallbacks
 {
@@ -60,7 +59,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     private void Update()
     {
-        
+
     }
     #endregion
 
@@ -109,9 +108,9 @@ public class Launcher : MonoBehaviourPunCallbacks
 
         //PhotonNetwork.NickName = "Player" + UnityEngine.Random.Range(0, 100);
 
-        if(!_hasSetNickname)
+        if (!_hasSetNickname)
         {
-            CloseMenu() ;
+            CloseMenu();
             nameInputScreen.SetActive(true);
         }
     }
@@ -123,7 +122,7 @@ public class Launcher : MonoBehaviourPunCallbacks
 
         ListAllPlayers();
 
-        if(PhotonNetwork.IsMasterClient)
+        if (PhotonNetwork.IsMasterClient)
         {
             startGameButton.SetActive(true);
         }
@@ -146,7 +145,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public override void OnLeftLobby()
     {
-        CloseMenu() ;
+        CloseMenu();
         menubuttons.SetActive(true);
     }
     public override void OnLeftRoom()
@@ -162,7 +161,7 @@ public class Launcher : MonoBehaviourPunCallbacks
         }
         roomButtons.Clear();
 
-        for(int i = 0; i < roomList.Count; i++)
+        for (int i = 0; i < roomList.Count; i++)
         {
             if (roomList[i].PlayerCount != roomList[i].MaxPlayers && !roomList[i].RemovedFromList)
             {
@@ -299,7 +298,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     public void Quit()
     {
 #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
+        UnityEditor.EditorApplication.isPlaying = false;
 #else
                 Application.Quit();
 #endif
@@ -308,7 +307,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.NickName = (!string.IsNullOrEmpty(nameInput.text)) ? nameInput.text : ("Player" + UnityEngine.Random.Range(1, 1000));
 
-        if (PhotonNetwork.NickName !=  string.Empty)
+        if (PhotonNetwork.NickName != string.Empty)
         {
             _hasSetNickname = true;
             CloseMenu();

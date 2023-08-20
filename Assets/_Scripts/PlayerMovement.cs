@@ -1,5 +1,5 @@
-using UnityEngine;
 using Photon.Pun;
+using UnityEngine;
 
 public class PlayerMovement : MonoBehaviourPunCallbacks
 {
@@ -50,7 +50,7 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
 
     private void Start()
     {
-        if(photonView.IsMine)
+        if (photonView.IsMine)
         {
             playerModel.SetActive(false);
         }
@@ -81,6 +81,11 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
 
         // Move the player with calculated velocity
         characterController.Move(velocity * Time.deltaTime);
+    }
+
+    private void FixedUpdate()
+    {
+        //CheckPlayerOnGround();
     }
 
     private void LateUpdate()

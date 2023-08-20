@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using Photon.Pun;
 using TMPro;
+using UnityEngine;
 public class PlayerSpawner : MonoBehaviour
 {
     public static PlayerSpawner Instance;
@@ -41,8 +39,11 @@ public class PlayerSpawner : MonoBehaviour
     public void Die(string damager)
     {
         PhotonNetwork.Instantiate(deathVFX.name, player.transform.position, Quaternion.identity);
+
         PhotonNetwork.Destroy(player);
+
         playerDeadPanel.SetActive(true);
+
         playerDeadText.text = $"Shot By : {damager}";
 
         Invoke("SpawnPlayerAtRandomSpawnPoints", 3f);

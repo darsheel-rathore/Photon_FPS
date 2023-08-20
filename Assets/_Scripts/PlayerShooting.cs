@@ -1,5 +1,5 @@
-using UnityEngine;
 using Photon.Pun;
+using UnityEngine;
 
 public class PlayerShooting : MonoBehaviourPunCallbacks
 {
@@ -159,15 +159,15 @@ public class PlayerShooting : MonoBehaviourPunCallbacks
                     Quaternion.identity);
                 Destroy(playerBloodImpact, 3f);
 
-                hitInfo.collider.gameObject.GetPhotonView().RPC("DealDamage", RpcTarget.All, photonView.Owner.NickName, guns[selectedGun].shotDamage);
+                hitInfo.collider.gameObject.GetPhotonView().RPC("DealDamage", RpcTarget.All, photonView.Owner.NickName, photonView.Owner.ActorNumber, guns[selectedGun].shotDamage);
             }
             else
-            { 
+            {
                 // Instantiate bullet impact effect at the hit point
                 GameObject bulletImpact = Instantiate(
-                    this.bulletImpact, 
-                    hitInfo.point + (hitInfo.normal * 0.002f), 
-                    Quaternion.LookRotation(hitInfo.normal, 
+                    this.bulletImpact,
+                    hitInfo.point + (hitInfo.normal * 0.002f),
+                    Quaternion.LookRotation(hitInfo.normal,
                     Vector3.up));
                 Destroy(bulletImpact, 3f);  // Destroy bullet impact effect after a delay
             }
@@ -207,7 +207,7 @@ public class PlayerShooting : MonoBehaviourPunCallbacks
     [PunRPC]
     public void SwitchWeaponAcrossNetwork(int index)
     {
-        if(index < guns.Length)
+        if (index < guns.Length)
         {
             selectedGun = index;
             SwitchWeapon(selectedGun);
