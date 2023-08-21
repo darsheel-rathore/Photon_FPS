@@ -1,4 +1,5 @@
 using Photon.Pun;
+using System;
 using UnityEngine;
 
 public class PlayerShooting : MonoBehaviourPunCallbacks
@@ -29,11 +30,19 @@ public class PlayerShooting : MonoBehaviourPunCallbacks
     public Transform modelGunPoint;
     public Transform gunHolder;
 
+    // ADS
+    private Camera cam;
+    public float zoomSpeed = 5f;
+    public float defaultFieldOfViewValue = 60f;
+    public Transform withADSPos;
+    public Transform withoutADSPOS;
+
     private void Start()
     {
         selectedGun = 0;
         //SwitchWeapon(selectedGun);  // Initialize the selected weapon
         photonView.RPC("SwitchWeaponAcrossNetwork", RpcTarget.All, selectedGun);
+        cam = Camera.main;
 
         if (photonView.IsMine)
         {
@@ -54,7 +63,31 @@ public class PlayerShooting : MonoBehaviourPunCallbacks
 
         CheckMuzzleFlash();  // Check if muzzle flash should be deactivated
         UpdateWeaponHeat();  // Manage weapon heat and shooting
+        ADS_ZooM();         // Manage Aim Down Sight view
         SwitchWeaponWithScrollAndNumKeys();  // Handle weapon switching
+    }
+
+    private void ADS_ZooM()
+    {
+        if(Input.GetKey(KeyCode.Mouse1))
+        {
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, guns[selectedGun].adsZoom, zoomSpeed * Time.deltaTime);
+
+            // lerp the weapon too
+            var currentGun = guns[selectedGun].transform;
+            currentGun.localPosition = Vector3.Lerp(currentGun.transform.localPosition, withADSPos.localPosition, zoomSpeed * Time.deltaTime);
+        }
+        else
+        {
+            if (cam.fieldOfView == defaultFieldOfViewValue)
+                return;
+            
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, defaultFieldOfViewValue, zoomSpeed * Time.deltaTime);
+
+            var currentGun = guns[selectedGun].transform;
+            currentGun.localPosition = Vector3.Lerp(currentGun.transform.localPosition, withoutADSPOS.localPosition, zoomSpeed * Time.deltaTime);
+
+        }
     }
 
     // Check if muzzle flash should be deactivated
@@ -186,6 +219,9 @@ public class PlayerShooting : MonoBehaviourPunCallbacks
         // Display muzzle flash
         guns[selectedGun].muzzleFlash.SetActive(true);
         muzzleCounter = muzzleDisplayTime;
+
+        guns[selectedGun].shotSound.Stop();
+        guns[selectedGun].shotSound.Play();
     }
 
     // Switch to the specified weapon index

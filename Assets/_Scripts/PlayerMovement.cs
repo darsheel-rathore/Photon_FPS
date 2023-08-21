@@ -35,6 +35,9 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
 
     public GameObject playerModel;
 
+    public AudioSource footStepFast;
+    public AudioSource footStepSlow;
+
     private void Awake()
     {
         // Initialize references and set mouse cursor behavior
@@ -104,7 +107,7 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
         }
 
         // Call the method to disable cursor lock
-        DisableCursorLock();
+        //DisableCursorLock();
     }
 
     private void FollowCamera()
@@ -180,9 +183,31 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
 
         // Set active move speed based on whether the player is running
         if (Input.GetKey(KeyCode.LeftShift))
+        {
             activeMoveSpeed = runSpeed;
+
+            if (!footStepFast.isPlaying && movement != Vector3.zero)
+            {
+                footStepSlow.Stop();
+                footStepFast.Play();
+            }
+        }
         else
+        {
             activeMoveSpeed = moveSpeed;
+            if (!footStepSlow.isPlaying && movement != Vector3.zero)
+            {
+                footStepSlow.Play();
+                footStepFast.Stop();
+            }
+
+        }
+
+        if(movement == Vector3.zero || !isGrounded)
+        {
+            footStepSlow.Stop();
+            footStepFast.Stop();
+        }
 
         // Calculate movement based on local direction and speed
         movement = localDirection * activeMoveSpeed * Time.deltaTime;

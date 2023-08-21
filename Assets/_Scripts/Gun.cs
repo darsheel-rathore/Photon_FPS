@@ -7,4 +7,13 @@ public class Gun : MonoBehaviour
     public float heatPerShot = 5f;
     public GameObject muzzleFlash;
     public int shotDamage;
+    public int adsZoom;
+    public AudioSource shotSound;
+
+    //public Vector3 defaultPos;
+
+    private void Start()
+    {
+        //defaultPos = transform.position;
+    }
 }

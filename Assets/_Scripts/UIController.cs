@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
+using UnityEngine.SceneManagement;
 
 public class UIController : MonoBehaviourPunCallbacks
 {
@@ -22,9 +23,19 @@ public class UIController : MonoBehaviourPunCallbacks
 
     public TMP_Text timerText;
 
+    public GameObject optionsPanel;
+
     private void Awake()
     {
         instance = this;
+        optionsPanel.SetActive(false);
+    }
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            ShowHideOptions();
+        }
     }
 
     public void ToggleOverHeatMsg(bool value)
@@ -41,5 +52,37 @@ public class UIController : MonoBehaviourPunCallbacks
     public void UpdateHealthSlider(float value)
     {
         healthSlider.value = value;
+    }
+
+    public void ShowHideOptions()
+    {
+        if(!optionsPanel.activeInHierarchy)
+        {
+            optionsPanel.SetActive(true);
+
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            optionsPanel.SetActive(false);
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+    }
+
+    public void ReturnToMainMenu()
+    {
+        PhotonNetwork.AutomaticallySyncScene = false;
+        PhotonNetwork.LeaveRoom();
+    }
+
+    public void Quit()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 }
