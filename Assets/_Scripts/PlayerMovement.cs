@@ -93,8 +93,15 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
         if (!photonView.IsMine)
             return;
 
-        // Update camera position and rotation to match viewPoint
-        FollowCamera();
+        if (MatchManager.Instance.currentState == MatchManager.GameState.PLAYING)
+        {
+            // Update camera position and rotation to match viewPoint
+            FollowCamera();
+        }
+        else
+        {
+            ChangeCamPosAfterMatchEnds();
+        }
 
         // Call the method to disable cursor lock
         DisableCursorLock();
@@ -105,6 +112,12 @@ public class PlayerMovement : MonoBehaviourPunCallbacks
         // Move the camera to the position and rotation of the viewPoint
         cam.transform.position = viewPoint.transform.position;
         cam.transform.rotation = viewPoint.transform.rotation;
+    }
+
+    private void ChangeCamPosAfterMatchEnds()
+    {
+        cam.transform.position = MatchManager.Instance.mapCamPoint.position;
+        cam.transform.rotation = MatchManager.Instance.mapCamPoint.rotation;
     }
 
     private void PlayerRotation()

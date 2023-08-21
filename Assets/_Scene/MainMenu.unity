@@ -2102,6 +2102,10 @@ MonoBehaviour:
   levelToPlay: 
   startGameButton: {fileID: 1462319184}
   testButton: {fileID: 2125200547}
+  allMaps:
+  - Map_1
+  - Map_2
+  changeMapBetweenRounds: 1
 --- !u!1 &529549360
 GameObject:
   m_ObjectHideFlags: 0

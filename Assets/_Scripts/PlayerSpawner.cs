@@ -20,11 +20,12 @@ public class PlayerSpawner : MonoBehaviour
     {
         if (PhotonNetwork.IsConnected)
         {
+            Debug.Log("Called From the start function. - Player Instantiate");
             SpawnPlayerAtRandomSpawnPoints();
         }
     }
 
-    private void SpawnPlayerAtRandomSpawnPoints()
+    public void SpawnPlayerAtRandomSpawnPoints()
     {
         // Setting Spawn Point of the instantiated player
         var offset = transform.up * 2f;
@@ -32,6 +33,7 @@ public class PlayerSpawner : MonoBehaviour
         var spawnPointWithOffset = offset + spawnPoint.position;
 
         player = PhotonNetwork.Instantiate(playerPrefab.name, spawnPointWithOffset, spawnPoint.transform.rotation);
+        Debug.Log("Called - Player Instantiate");
 
         playerDeadPanel.SetActive(false);
     }
@@ -41,11 +43,13 @@ public class PlayerSpawner : MonoBehaviour
         PhotonNetwork.Instantiate(deathVFX.name, player.transform.position, Quaternion.identity);
 
         PhotonNetwork.Destroy(player);
+        player = null;
 
         playerDeadPanel.SetActive(true);
 
         playerDeadText.text = $"Shot By : {damager}";
 
-        Invoke("SpawnPlayerAtRandomSpawnPoints", 3f);
+        if(MatchManager.Instance.currentState == MatchManager.GameState.PLAYING && player == null)
+            Invoke("SpawnPlayerAtRandomSpawnPoints", 3f);
     }
 }

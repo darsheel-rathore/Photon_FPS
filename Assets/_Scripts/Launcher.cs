@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Launcher : MonoBehaviourPunCallbacks
 {
@@ -32,12 +33,15 @@ public class Launcher : MonoBehaviourPunCallbacks
 
     public GameObject nameInputScreen;
     public TMP_InputField nameInput;
-    private bool _hasSetNickname;
+    public static bool _hasSetNickname;
 
     public string levelToPlay;
 
     public GameObject startGameButton;
     public GameObject testButton;
+
+    public string[] allMaps;
+    public bool changeMapBetweenRounds = true;
 
     #region UNITY_BUILTIN
     private void Awake()
@@ -51,11 +55,14 @@ public class Launcher : MonoBehaviourPunCallbacks
         loadingScreen.SetActive(true);
         loadingText.text = "Connecting To Network...";
 
-        PhotonNetwork.ConnectUsingSettings();
+        if(!PhotonNetwork.IsConnected)
+            PhotonNetwork.ConnectUsingSettings();
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
         testButton.SetActive(true);
-#endif
+    #endif
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
     private void Update()
     {
@@ -321,7 +328,8 @@ public class Launcher : MonoBehaviourPunCallbacks
     public void StartGame()
     {
         //SceneManager.LoadScene(levelToPlay);
-        PhotonNetwork.LoadLevel(1);
+        //PhotonNetwork.LoadLevel(1);
+        PhotonNetwork.LoadLevel(allMaps[UnityEngine.Random.Range(0, 2)]);
     }
     public void QuickJoin()
     {
