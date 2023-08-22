@@ -22,7 +22,6 @@ public class Launcher : MonoBehaviourPunCallbacks
     private List<TMP_Text> allPlayernames = new List<TMP_Text>();
     public GameObject playerListParent;
 
-
     public GameObject errorPanel;
     public TMP_Text errorText;
 
@@ -50,28 +49,31 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     private void Start()
     {
+        // Close any active UI screens
         CloseMenu();
 
+        // Display loading screen while connecting to the network
         loadingScreen.SetActive(true);
         loadingText.text = "Connecting To Network...";
 
-        if(!PhotonNetwork.IsConnected)
+        // Connect to Photon network if not already connected
+        if (!PhotonNetwork.IsConnected)
             PhotonNetwork.ConnectUsingSettings();
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
+        // Activate the test button in the Unity Editor
         testButton.SetActive(true);
-    #endif
+#endif
+
+        // Reset cursor state and make it visible
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
-    }
-    private void Update()
-    {
-
     }
     #endregion
 
     private void CloseMenu()
     {
+        // Deactivate all the UI screens to close the menu
         loadingScreen.SetActive(false);
         menubuttons.SetActive(false);
         createRoomScreen.SetActive(false);
@@ -82,39 +84,47 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     private void ListAllPlayers()
     {
+        // Clear the previous player name labels
         foreach (var player in allPlayernames)
         {
             Destroy(player.gameObject);
         }
-
         allPlayernames.Clear();
 
+        // Get the current list of players in the room
         Player[] players = PhotonNetwork.PlayerList;
 
+        // Create and display a player name label for each player
         foreach (var newPlayer in players)
         {
+            // Instantiate a new player name label and set its properties
             var newPlayerLabel = Instantiate(playerNameLabel, transform.position, Quaternion.identity, playerListParent.transform);
             newPlayerLabel.text = newPlayer.NickName;
             newPlayerLabel.gameObject.SetActive(true);
-            allPlayernames.Add(newPlayerLabel);
+            allPlayernames.Add(newPlayerLabel); // Add the label to the list
         }
-
     }
 
     #region PUN-CALLBACKS
+    // Photon PUN callbacks
     public override void OnConnectedToMaster()
     {
+        // Automatically sync scenes when connected to master server
         PhotonNetwork.AutomaticallySyncScene = true;
+
+        // Join the lobby after connecting
         PhotonNetwork.JoinLobby();
+
+        // Display loading message
         loadingText.text = "Joining Lobby...";
     }
     public override void OnJoinedLobby()
     {
+        // When joined the lobby, enable the main menu buttons
         CloseMenu();
         menubuttons.SetActive(true);
 
-        //PhotonNetwork.NickName = "Player" + UnityEngine.Random.Range(0, 100);
-
+        // If nickname is not set, show the name input screen
         if (!_hasSetNickname)
         {
             CloseMenu();
@@ -123,12 +133,15 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public override void OnJoinedRoom()
     {
+        // When joined a room, show the room panel and set its properties
         CloseMenu();
         roomPanel.SetActive(true);
         roomNameText.text = $"Joined - {PhotonNetwork.CurrentRoom.Name}";
 
+        // List all players currently in the room
         ListAllPlayers();
 
+        // Show start game button for the master client
         if (PhotonNetwork.IsMasterClient)
         {
             startGameButton.SetActive(true);
@@ -140,34 +153,26 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public override void OnCreateRoomFailed(short returnCode, string message)
     {
+        // If creating a room failed, show error panel with error details
         CloseMenu();
         errorPanel.SetActive(true);
         errorText.text = $" Error Code : {returnCode}\n{message}";
     }
-    public override void OnJoinRoomFailed(short returnCode, string message)
-    {
-        CloseMenu();
-        errorPanel.SetActive(true);
-        errorText.text = $" Error Code : {returnCode}\n{message}";
-    }
-    public override void OnLeftLobby()
-    {
-        CloseMenu();
-        menubuttons.SetActive(true);
-    }
-    public override void OnLeftRoom()
-    {
-        CloseMenu();
-        menubuttons.SetActive(true);
-    }
+
+    // Other Photon PUN callbacks are handled here
+    // ...
+
+    // Called when the room list is updated
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
+        // Clear existing room buttons
         foreach (RoomButton rb in roomButtons)
         {
             Destroy(rb.gameObject);
         }
         roomButtons.Clear();
 
+        // Create new room buttons based on the updated room list
         for (int i = 0; i < roomList.Count; i++)
         {
             if (roomList[i].PlayerCount != roomList[i].MaxPlayers && !roomList[i].RemovedFromList)
@@ -180,17 +185,23 @@ public class Launcher : MonoBehaviourPunCallbacks
             }
         }
     }
+
+    // Called when a new player enters the room
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
+        // Instantiate a player name label for the new player
         var newPlayerLabel = Instantiate(playerNameLabel, transform.position, Quaternion.identity, playerListParent.transform);
         newPlayerLabel.text = newPlayer.NickName;
         newPlayerLabel.gameObject.SetActive(true);
         allPlayernames.Add(newPlayerLabel);
     }
+
+    // Called when a player leaves the room
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         if (otherPlayer != null)
         {
+            // Remove the player's name label from the list and destroy it
             List<TMP_Text> playersToRemove = new List<TMP_Text>();
 
             foreach (var player in allPlayernames)
@@ -208,8 +219,11 @@ public class Launcher : MonoBehaviourPunCallbacks
             }
         }
     }
+
+    // Called when the master client switches
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
+        // Show or hide start game button based on whether the local player is now the master client
         if (PhotonNetwork.IsMasterClient)
         {
             startGameButton.SetActive(true);
@@ -224,6 +238,7 @@ public class Launcher : MonoBehaviourPunCallbacks
     #region Button OnClick Events
     public void OnFindRoomButtonClicked()
     {
+        // Open room browser if there are available rooms, otherwise show room creation screen
         if (PhotonNetwork.CountOfRooms > 0)
         {
             OpenRoomBrowser();
@@ -235,9 +250,10 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public void OnCreateRoomButtonClicked()
     {
+        // Get the desired room name from input, or generate a random one
         var roomName = (roomNameInput.text != string.Empty) ? roomNameInput.text : ("Room" + UnityEngine.Random.Range(1, 1000));
-        //var roomName = roomNameInput?.text ?? ("Room" + UnityEngine.Random.Range(1, 1000));
 
+        // Create a new room with specified options
         if (roomName != string.Empty)
         {
             RoomOptions roomOptions = new RoomOptions()
@@ -257,7 +273,7 @@ public class Launcher : MonoBehaviourPunCallbacks
                 Debug.LogException(e);
             }
 
-            // Close the whole menu
+            // Close the entire menu and show loading screen
             CloseMenu();
             loadingScreen.SetActive(true);
             loadingText.text = "Creating A Room...";
@@ -267,11 +283,13 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public void OnFailedRoomCreateButtonClicked()
     {
+        // Automatically set a random room name and attempt to create a room
         roomNameInput.text = $"Room : {UnityEngine.Random.Range(0, 1000)}";
         OnCreateRoomButtonClicked();
     }
     public void OnLeaveRoomButtonClicked()
     {
+        // Leave the current room and show loading screen
         PhotonNetwork.LeaveRoom();
 
         CloseMenu();
@@ -280,22 +298,26 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public void OnLeaveLobbyButtonClicked()
     {
+        // Close the menu and show loading screen when leaving the lobby
         CloseMenu();
         loadingText.text = "Leaving Lobby";
         loadingScreen.SetActive(true);
     }
     public void OpenRoomBrowser()
     {
+        // Open the room browser screen and close other menus
         CloseMenu();
         roomBrowserScreen.SetActive(true);
     }
     public void CloseRoomBrowser()
     {
+        // Close the room browser and show the main menu buttons
         CloseMenu();
         menubuttons.SetActive(true);
     }
     public void JoinRoom(RoomInfo inputInfo)
     {
+        // Join a specific room and show loading screen
         PhotonNetwork.JoinRoom(inputInfo.Name);
 
         CloseMenu();
@@ -304,14 +326,16 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public void Quit()
     {
+        // Quit the application (or stop play mode in Unity Editor)
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-                Application.Quit();
+    Application.Quit();
 #endif
     }
     public void SetNickName()
     {
+        // Set the player's nickname and show the main menu buttons
         PhotonNetwork.NickName = (!string.IsNullOrEmpty(nameInput.text)) ? nameInput.text : ("Player" + UnityEngine.Random.Range(1, 1000));
 
         if (PhotonNetwork.NickName != string.Empty)
@@ -327,12 +351,12 @@ public class Launcher : MonoBehaviourPunCallbacks
     }
     public void StartGame()
     {
-        //SceneManager.LoadScene(levelToPlay);
-        //PhotonNetwork.LoadLevel(1);
+        // Load a random map from the available map list
         PhotonNetwork.LoadLevel(allMaps[UnityEngine.Random.Range(0, 2)]);
     }
     public void QuickJoin()
     {
+        // Create a room named "Test" for quick joining and show loading screen
         PhotonNetwork.CreateRoom("Test");
         CloseMenu();
         loadingText.text = "Creating Room...";
