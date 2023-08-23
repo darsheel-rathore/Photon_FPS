@@ -42,6 +42,9 @@ public class Launcher : MonoBehaviourPunCallbacks
     public string[] allMaps;
     public bool changeMapBetweenRounds = true;
 
+    public GameObject howToPlayButton;
+    public GameObject howToPlayInstructionPanel;
+
     #region UNITY_BUILTIN
     private void Awake()
     {
@@ -86,6 +89,8 @@ public class Launcher : MonoBehaviourPunCallbacks
         errorPanel.SetActive(false);
         roomBrowserScreen.SetActive(false);
         nameInputScreen.SetActive(false);
+        howToPlayButton.SetActive(false);   
+        howToPlayInstructionPanel.SetActive(false);
     }
     private void ListAllPlayers()
     {
@@ -128,6 +133,7 @@ public class Launcher : MonoBehaviourPunCallbacks
         // When joined the lobby, enable the main menu buttons
         CloseMenu();
         menubuttons.SetActive(true);
+        howToPlayButton.SetActive(true);
 
         // If nickname is not set, show the name input screen
         if (!_hasSetNickname)
@@ -346,6 +352,7 @@ public class Launcher : MonoBehaviourPunCallbacks
             _hasSetNickname = true;
             CloseMenu();
             menubuttons.SetActive(true);
+            howToPlayButton.SetActive(true);    
         }
         else
         {
