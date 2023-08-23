@@ -442,7 +442,7 @@ public class MatchManager : MonoBehaviourPunCallbacks, IOnEventCallback
     // Called when the local player leaves the room
     public override void OnLeftRoom()
     {
-        base.OnLeftRoom();
+        //base.OnLeftRoom();
         SceneManager.LoadScene(0); // Load the main menu scene
     }
 

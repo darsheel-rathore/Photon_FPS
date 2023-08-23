@@ -22,7 +22,6 @@ public class PlayerSpawner : MonoBehaviour
         // Spawn the player if connected to Photon Network
         if (PhotonNetwork.IsConnected)
         {
-            Debug.Log("Called From the start function. - Player Instantiate");
             SpawnPlayerAtRandomSpawnPoints();
         }
     }
@@ -36,7 +35,6 @@ public class PlayerSpawner : MonoBehaviour
 
         // Instantiate the player at the calculated spawn position
         player = PhotonNetwork.Instantiate(playerPrefab.name, spawnPointWithOffset, spawnPoint.transform.rotation);
-        Debug.Log("Called - Player Instantiate");
 
         playerDeadPanel.SetActive(false); // Deactivate the player death panel
     }

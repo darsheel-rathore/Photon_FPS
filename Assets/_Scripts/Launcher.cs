@@ -69,6 +69,11 @@ public class Launcher : MonoBehaviourPunCallbacks
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
+
+    private void Update()
+    {
+        //Debug.Log("Rooms Count: " + PhotonNetwork.CountOfRooms);
+    }
     #endregion
 
     private void CloseMenu()
@@ -278,8 +283,6 @@ public class Launcher : MonoBehaviourPunCallbacks
             loadingScreen.SetActive(true);
             loadingText.text = "Creating A Room...";
         }
-
-        Debug.Log(roomName);
     }
     public void OnFailedRoomCreateButtonClicked()
     {
